@@ -1,8 +1,16 @@
 > [!NOTE]
-> **This is a fork of ExpressLRS 3.6.2 with tank (differential) mixing done inside the TX module.**
-> Built for the RadioMaster T8L, a screenless radio with no mixer menu, driving a combat robot.
-> See [TANKMIX.md](TANKMIX.md) for what changes, the default configuration, safety features and how to build and flash it.
-> The rest of this README is the original ExpressLRS one.
+> ## Fork: tank mixing inside the ExpressLRS TX module (RadioMaster T8L)
+>
+> This fork of **ExpressLRS 3.6.2** mixes throttle and steering into left/right motor channels **inside the transmitter's RF module**, before sending them. It lets screenless radios with no mixer menu, like the **RadioMaster T8L**, drive tank-steer robots with a **stock receiver** and **no external mixer board**.
+>
+> - **What changes:** a new header, `src/include/tankmix.h`, and two lines in `src/src/tx_main.cpp`
+> - **Tested on:** RadioMaster T8L (internal ELRS module) + ER5C-i receiver, in a beetleweight combat robot
+> - **Safety:** the weapon channel is protected at build time, the mix starts off and is toggled by a switch (Ch6) only with the sticks centered
+> - **Extras:** an ESP32-S3 sketch in `tools/tankmix_tester` to check the receiver outputs without the robot
+>
+> **Full documentation — how it works, configuration, direction fixes, safety, build/flash and bench test: [TANKMIX.md](TANKMIX.md)**
+>
+> Everything below this note is the original ExpressLRS README.
 
 ![Banner](https://github.com/ExpressLRS/ExpressLRS-Hardware/blob/master/img/banner.png?raw=true)
 
