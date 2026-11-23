@@ -1,3 +1,9 @@
+> [!NOTE]
+> **This is a fork of ExpressLRS 3.6.2 with tank (differential) mixing done inside the TX module.**
+> Built for the RadioMaster T8L, a screenless radio with no mixer menu, driving a combat robot.
+> See [TANKMIX.md](TANKMIX.md) for what changes, the default configuration, safety features and how to build and flash it.
+> The rest of this README is the original ExpressLRS one.
+
 ![Banner](https://github.com/ExpressLRS/ExpressLRS-Hardware/blob/master/img/banner.png?raw=true)
 
 <center>
