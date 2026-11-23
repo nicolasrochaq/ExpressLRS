@@ -25,6 +25,7 @@
 #include "devBackpack.h"
 
 #include "MAVLink.h"
+#include "tankmix.h"
 
 #if defined(PLATFORM_ESP32_S3) || defined(PLATFORM_ESP32_C3)
 #include "USB.h"
@@ -578,7 +579,7 @@ void ICACHE_RAM_ATTR SendRCdataToRF()
       NextPacketIsMspData = true;
 
       injectBackpackPanTiltRollData(now);
-      OtaPackChannelData(&otaPkt, ChannelData, TelemetryReceiver.GetCurrentConfirm(), ExpressLRS_currTlmDenom);
+      OtaPackChannelData(&otaPkt, tankMixApply(ChannelData), TelemetryReceiver.GetCurrentConfirm(), ExpressLRS_currTlmDenom);
     }
   }
 
