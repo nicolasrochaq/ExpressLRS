@@ -1,0 +1,46 @@
+name: TankMix release
+
+# Push a tag like v1.0.0 to publish TankMix-v1.0.0.zip as a GitHub release.
+# Release notes come from tools/tankmix_config/release-notes/<tag>.md.
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Check that the tag matches TOOL_VERSION
+        run: |
+          v=$(python3 -c "import re;print(re.search(r'TOOL_VERSION = \"([^\"]+)\"', open('tools/tankmix_config/tankmix_config.py').read()).group(1))")
+          if [ "v$v" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match TOOL_VERSION $v"; exit 1
+          fi
+
+      - name: Test the app scripts
+        run: |
+          python3 -m py_compile tools/tankmix_config/tankmix_config.py tools/tankmix_config/tankmix_patch.py tools/tankmix_config/make_release.py
+          python3 tools/tankmix_config/tankmix_patch.py . | tee status.txt
+          grep -q "Tank mix is installed" status.txt
+
+      - name: Build the zip
+        run: python3 tools/tankmix_config/make_release.py dist
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          notes=tools/tankmix_config/release-notes/$GITHUB_REF_NAME.md
+          [ -f "$notes" ] || { echo "TankMix $GITHUB_REF_NAME" > "$notes"; }
+          gh release create "$GITHUB_REF_NAME" "dist/TankMix-$GITHUB_REF_NAME.zip" \
+            --title "TankMix $GITHUB_REF_NAME" --notes-file "$notes" --latest
