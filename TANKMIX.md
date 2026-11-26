@@ -86,33 +86,30 @@ All options are `#define`s at the top of `src/include/tankmix.h`. The simplest w
 
 Channel indices are **0-based** (Ch1 = 0, Ch2 = 1, ...).
 
-### Config tool (no code editing)
+### TankMix app (recommended)
 
-`tools/tankmix_config/tankmix_config.html` is a single offline page that edits these defines for you:
+**[TankMix](tools/tankmix_config/README.md)** is a small app that does all of this from the browser, in English or Portuguese. Download it from the [Releases page](https://github.com/nicolasrochaq/ExpressLRS-T8L-TankMix/releases): unzip it and start `TankMix.bat` (Windows), `TankMix.command` (macOS) or `tankmix.sh` (Linux). It runs on any computer with Python 3.8+, PlatformIO and Git. The page checks for them on start and links to the installers.
 
-1. Open it in **Chrome or Edge** on the PC (double-click the file).
-2. Click **Open tankmix.h** and pick `<your clone>/src/include/tankmix.h`.
-3. Change channels, steering %, deadbands and reverses. Invalid combinations (the same ones the `static_assert`s reject) disable Save.
-4. Use the **preview** stick to see the left/right outputs. It runs the same integer math as the firmware.
-5. Click **Save to tankmix.h**: only the numbers change, everything else in the file (comments, line endings) is kept.
-6. Build and flash with the ExpressLRS Configurator as usual (Local → `<your clone>/src`).
+- **System check:** Python, PlatformIO, Git and internet, with install links for anything missing.
+- **ExpressLRS folder:** download any ExpressLRS version from 3.5.0 on, or open one you already have. If the tank mix is not there, **Install tank mix** copies `tankmix.h` and makes the two changes in `src/src/tx_main.cpp`, keeping a backup as `tx_main.cpp.before-tankmix`. The same can be done from the command line with `python tools/tankmix_config/tankmix_patch.py <folder> --install`.
+- **Editor:** every define in the table above, validated with the same rules as the `static_assert`s. A live preview runs the same integer math as `tankMixApply()`. Saving only changes the numbers in `tankmix.h` and keeps comments and line endings.
+- **Build firmware:** runs `pio run -e Unified_ESP8285_2400_TX_via_WIFI` with `-DRegulatory_Domain_ISM_2400`, then `python/UnifiedConfiguration.py --target radiomaster.tx_2400.t8l` to add the T8L hardware layout and the UID of your binding phrase. Options from `user_defines.txt` are kept. The output goes to `src/.pio/tankmix_out/firmware.bin.gz`.
+- **Flash to radio:** uploads to `http://10.0.0.1/update`, the same endpoint as the radio's own web page. Before clicking it, enable WiFi on the radio (ExpressLRS Lua → WiFi Connectivity → Enable WiFi) and connect the computer to the radio's network.
 
-Next time, **Reopen last file** skips the file picker. In browsers without the File System Access API (Firefox, Safari, phones), Save downloads a new `tankmix.h` instead; replace the old one with it.
+The binding phrase is turned into the 6-byte UID inside the app. It is never written to disk or passed on a command line, and the UID is hidden in the log. "Remember on this computer" keeps the phrase only in the browser's local storage. The app listens on `127.0.0.1` only, and every API call needs a random token created for that run.
 
-Overrides in `user_defines.txt` (`-DTANKMIX_...`) win over the file, so don't mix the two.
+**Why only the T8L.** Radios with EdgeTX or OpenTX can mix on the radio. The T8L has no screen for a mixer, and the ExpressLRS web UI has no tank mix, so here the mix has to run in the TX module. The app always builds for `radiomaster.tx_2400.t8l`.
 
-### Getting the directions right
+**Why 3.5.0+.** The T8L hardware layout in [ExpressLRS/targets](https://github.com/ExpressLRS/targets) needs 3.5.0 or newer. From 3.5.0 to 4.x, the channels are packed by a single `OtaPackChannelData(&otaPkt, ChannelData, ...)` call in `tx_main.cpp`, which is where the mix hooks in. Older trees are refused with a message. If a future version changes that call, the app says so instead of patching blindly.
 
-The defaults match the tested robot. On a different chassis, test with the wheels in the air and adjust:
+**Tested:**
 
-| Symptom | Fix |
+| ExpressLRS | Result |
 |---|---|
-| Stick forward makes the robot **spin**, stick sideways makes it **drive** | One motor is mirrored: toggle `TANKMIX_INV_LEFT` or `TANKMIX_INV_RIGHT` |
-| Forward and backward are swapped, turning is correct | Toggle `TANKMIX_INV_THR` |
-| Turning is swapped, forward is correct | Toggle `TANKMIX_INV_STEER` |
-| Everything is backwards | Toggle `TANKMIX_INV_THR` and `TANKMIX_INV_STEER` |
-| A motor creeps with the sticks centered | Recalibrate the ESC neutral, or raise `TANKMIX_OUT_DB` (e.g. `30`) |
-| Turning is too twitchy | Lower `TANKMIX_STEER_PCT` (e.g. `50`) |
+| 3.5.0, 3.6.2 | mod installed, firmware built and flashed |
+| 4.1.0 | mod installed, firmware built and flashed, also on Windows (the mixer symbols are in the binary) |
+| 3.6.4 | downloaded from inside the app and installed |
+| 4.0.0, master | patch applies cleanly |
 
 ## Safety
 

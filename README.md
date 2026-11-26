@@ -6,6 +6,7 @@
 > - **What changes:** a new header, `src/include/tankmix.h`, and two lines in `src/src/tx_main.cpp`
 > - **Tested on:** RadioMaster T8L (internal ELRS module) + ER5C-i receiver, in a beetleweight combat robot
 > - **Safety:** the weapon channel is protected at build time, the mix starts off and is toggled by a switch (Ch6) only with the sticks centered
+> - **TankMix app:** download it from [Releases](https://github.com/nicolasrochaq/ExpressLRS-T8L-TankMix/releases). It installs the mod into any ExpressLRS 3.5.0+, lets you set up the mix with a live preview, builds the T8L firmware and flashes it over WiFi. It works on Windows, macOS and Linux, in English or Portuguese. See [tools/tankmix_config](tools/tankmix_config/README.md).
 > - **Extras:** an ESP32-S3 sketch in `tools/tankmix_tester` to check the receiver outputs without the robot
 >
 > **Full documentation — how it works, configuration, direction fixes, safety, build/flash and bench test: [TANKMIX.md](TANKMIX.md)**
