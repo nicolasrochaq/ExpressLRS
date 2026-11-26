@@ -86,6 +86,21 @@ All options are `#define`s at the top of `src/include/tankmix.h`. The simplest w
 
 Channel indices are **0-based** (Ch1 = 0, Ch2 = 1, ...).
 
+### Config tool (no code editing)
+
+`tools/tankmix_config/tankmix_config.html` is a single offline page that edits these defines for you:
+
+1. Open it in **Chrome or Edge** on the PC (double-click the file).
+2. Click **Open tankmix.h** and pick `<your clone>/src/include/tankmix.h`.
+3. Change channels, steering %, deadbands and reverses. Invalid combinations (the same ones the `static_assert`s reject) disable Save.
+4. Use the **preview** stick to see the left/right outputs. It runs the same integer math as the firmware.
+5. Click **Save to tankmix.h**: only the numbers change, everything else in the file (comments, line endings) is kept.
+6. Build and flash with the ExpressLRS Configurator as usual (Local → `<your clone>/src`).
+
+Next time, **Reopen last file** skips the file picker. In browsers without the File System Access API (Firefox, Safari, phones), Save downloads a new `tankmix.h` instead; replace the old one with it.
+
+Overrides in `user_defines.txt` (`-DTANKMIX_...`) win over the file, so don't mix the two.
+
 ### Getting the directions right
 
 The defaults match the tested robot. On a different chassis, test with the wheels in the air and adjust:

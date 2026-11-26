@@ -1,0 +1,942 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TankMix T8L</title>
+<!--
+  TankMix for the RadioMaster T8L - served by tankmix_config.py (start it with
+  TankMix.bat / TankMix.command / tankmix.sh). English and Portuguese.
+  Fully offline, no external scripts.
+-->
+<style>
+:root {
+  --bg: #f4f5f7; --card: #ffffff; --fg: #1b1e23; --muted: #626b77;
+  --line: #d9dde3; --accent: #1f6feb; --accent-fg: #ffffff;
+  --ok: #1a7f37; --warn: #9a6700; --bad: #cf222e; --pad: #eef1f5;
+  --left: #1f6feb; --right: #d4580b;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1115; --card: #181b21; --fg: #e6e8eb; --muted: #9aa3ad;
+    --line: #2d323b; --accent: #4c8dff; --accent-fg: #0f1115;
+    --ok: #3fb950; --warn: #d29922; --bad: #f85149; --pad: #11141a;
+    --left: #4c8dff; --right: #f08c3a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1115; --card: #181b21; --fg: #e6e8eb; --muted: #9aa3ad;
+  --line: #2d323b; --accent: #4c8dff; --accent-fg: #0f1115;
+  --ok: #3fb950; --warn: #d29922; --bad: #f85149; --pad: #11141a;
+  --left: #4c8dff; --right: #f08c3a; color-scheme: dark;
+}
+:root[data-theme="light"] { color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg);
+  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+header { padding: 18px 16px 8px; max-width: 1100px; margin: 0 auto;
+  display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; }
+header > div { min-width: 0; }
+header h1 { font-size: 22px; margin: 0 0 4px; }
+header h1 small { font-size: 13px; color: var(--muted); font-weight: 400; }
+header p { margin: 0; color: var(--muted); }
+.hdr-btns { display: flex; gap: 8px; flex: none; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; border-radius: 0; padding: 8px 12px; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); font-weight: 600; }
+main { max-width: 1100px; margin: 0 auto; padding: 8px 16px 40px;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+@media (max-width: 820px) { main { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px; min-width: 0; }
+.card h2 { font-size: 15px; margin: 0 0 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.full { grid-column: 1 / -1; }
+.filebar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.name { font-family: ui-monospace, Consolas, monospace; font-size: 13px; color: var(--muted); word-break: break-all; }
+button { font: inherit; border: 1px solid var(--line); background: var(--card); color: var(--fg);
+  padding: 8px 14px; border-radius: 8px; cursor: pointer; }
+button.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); font-weight: 600; }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.row { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 10px; align-items: center; margin: 10px 0; }
+.row > label { font-weight: 600; }
+.row .hint { grid-column: 2; color: var(--muted); font-size: 13px; margin-top: -6px; }
+@media (max-width: 480px) { .row { grid-template-columns: minmax(0, 1fr); } .row .hint { grid-column: 1; } }
+select, input[type=number], input[type=text], input[type=password] { font: inherit; padding: 6px 8px; border-radius: 6px;
+  border: 1px solid var(--line); background: var(--card); color: var(--fg); width: 100%; min-width: 0; }
+.inline { display: flex; gap: 8px; align-items: center; min-width: 0; }
+.inline > input, .inline > select { flex: 1; }
+.inline > button { flex: none; }
+.slider { display: flex; gap: 10px; align-items: center; }
+.slider input[type=range] { flex: 1; min-width: 0; }
+.slider input[type=number] { width: 80px; flex: none; }
+.toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.toggle input { width: 18px; height: 18px; }
+.status { margin-top: 12px; font-size: 14px; }
+.status ul { margin: 6px 0 0; padding-left: 20px; }
+.ok { color: var(--ok); } .bad { color: var(--bad); } .warn { color: var(--warn); }
+.dirty { color: var(--warn); font-weight: 600; }
+.checks { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 820px) { .checks { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.check { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-size: 14px; min-width: 0; }
+.check b { display: block; }
+.check .d { color: var(--muted); font-size: 12.5px; word-break: break-word; }
+.check.is-ok { border-color: color-mix(in srgb, var(--ok) 45%, var(--line)); }
+.check.is-bad { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 8%, transparent); }
+.check.is-warn { border-color: var(--warn); }
+.check a { color: var(--accent); }
+.sub { margin: 14px 0 6px; font-weight: 600; font-size: 14px; }
+.sim { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 480px) { .sim { grid-template-columns: minmax(0, 1fr); } }
+#pad { width: 220px; height: 220px; background: var(--pad); border: 1px solid var(--line);
+  border-radius: 12px; touch-action: none; cursor: crosshair; display: block; max-width: 100%; }
+.bars { display: flex; gap: 18px; justify-content: center; }
+.bar { text-align: center; font-size: 13px; }
+.bar .track { width: 46px; height: 200px; border: 1px solid var(--line); border-radius: 8px;
+  position: relative; background: var(--pad); margin: 6px auto; overflow: hidden; }
+.bar .mid { position: absolute; left: 0; right: 0; top: 50%; border-top: 1px dashed var(--muted); }
+.bar .fill { position: absolute; left: 4px; right: 4px; border-radius: 4px; }
+.bar .val { font-family: ui-monospace, Consolas, monospace; font-variant-numeric: tabular-nums; }
+.readout { font-family: ui-monospace, Consolas, monospace; font-size: 13px; color: var(--muted); margin-top: 8px; }
+.simopts { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; }
+pre.diff, pre.log { font-family: ui-monospace, Consolas, monospace; background: var(--pad);
+  border: 1px solid var(--line); border-radius: 8px; padding: 10px; overflow-x: auto; margin: 0; }
+pre.diff { font-size: 12.5px; white-space: pre; }
+pre.log { font-size: 12px; margin-top: 12px; max-height: 340px; overflow: auto; white-space: pre-wrap; word-break: break-all; }
+.diff .del { color: var(--bad); } .diff .add { color: var(--ok); }
+.steps { margin: 0 0 8px; padding-left: 20px; }
+.steps li { margin: 4px 0; }
+.chmap { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; font-size: 12px; margin-top: 6px; }
+.chmap div { border: 1px solid var(--line); border-radius: 6px; padding: 4px 2px; text-align: center; min-width: 0; }
+.chmap .tag { display: block; font-size: 10.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chmap .used { border-color: var(--accent); }
+.chmap .err { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 12%, transparent); }
+footer { max-width: 1100px; margin: 0 auto; padding: 0 16px 24px; color: var(--muted); font-size: 12.5px; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>TankMix <small id="toolVer"></small></h1>
+    <p data-i18n="subtitle"></p>
+  </div>
+  <div class="hdr-btns">
+    <div class="seg" role="group" aria-label="Language / Idioma">
+      <button id="langEn" type="button">EN</button><button id="langPt" type="button">PT</button>
+    </div>
+    <button id="btnTheme" type="button"></button>
+  </div>
+</header>
+
+<main id="noServer" hidden>
+  <section class="card full"><h2 data-i18n="noserver.title"></h2><p data-i18n-html="noserver.body"></p></section>
+</main>
+
+<main id="app" hidden>
+  <section class="card full">
+    <h2 data-i18n="check.title"></h2>
+    <div class="checks" id="checks"></div>
+    <div class="status" id="checkStatus"></div>
+    <div class="filebar" style="margin-top:10px"><button id="btnRecheck" type="button" data-i18n="check.again"></button></div>
+  </section>
+
+  <section class="card full">
+    <h2 data-i18n="folder.title"></h2>
+    <div class="row"><label for="elrsPath" data-i18n="folder.path"></label>
+      <div class="inline"><input type="text" id="elrsPath" list="recentPaths" spellcheck="false" autocomplete="off">
+        <button class="primary" id="btnOpenFolder" type="button" data-i18n="folder.open"></button></div>
+      <div class="hint" data-i18n="folder.pathHint"></div></div>
+    <datalist id="recentPaths"></datalist>
+    <div class="row"><label for="verSel" data-i18n="folder.download"></label>
+      <div class="inline"><select id="verSel"><option value="" data-i18n="folder.loadingVersions"></option></select>
+        <button id="btnDownload" type="button" data-i18n="folder.downloadBtn"></button></div>
+      <div class="hint"><span data-i18n="folder.destHint"></span> <input type="text" id="verDest" spellcheck="false" style="margin-top:4px"></div></div>
+    <div class="filebar" style="margin-top:6px">
+      <button class="primary" id="btnInstall" type="button" hidden data-i18n="folder.install"></button>
+      <button class="primary" id="btnSave" type="button" disabled data-i18n="file.save"></button>
+      <button id="btnRevert" type="button" disabled data-i18n="file.revert"></button>
+      <span class="name" id="fileName"></span>
+      <span id="dirty" class="dirty"></span>
+    </div>
+    <div class="status" id="fileStatus"></div>
+  </section>
+
+  <section class="card">
+    <h2 data-i18n="ch.title"></h2>
+    <div class="row"><label for="THR_IN" data-i18n="ch.thr"></label><select id="THR_IN"></select></div>
+    <div class="row"><label for="STR_IN" data-i18n="ch.str"></label><select id="STR_IN"></select></div>
+    <div class="row"><label for="LEFT_OUT" data-i18n="ch.left"></label><select id="LEFT_OUT"></select>
+      <div class="hint" data-i18n="ch.leftHint"></div></div>
+    <div class="row"><label for="RIGHT_OUT" data-i18n="ch.right"></label><select id="RIGHT_OUT"></select></div>
+    <div class="row"><label for="SW_CH" data-i18n="ch.sw"></label><select id="SW_CH"></select>
+      <div class="hint" data-i18n="ch.swHint"></div></div>
+    <div class="row"><label for="WEAPON_CH" data-i18n="ch.weapon"></label><select id="WEAPON_CH"></select>
+      <div class="hint" data-i18n="ch.weaponHint"></div></div>
+    <div class="row"><label data-i18n="ch.arm"></label><span data-i18n="ch.armText"></span></div>
+    <div class="chmap" id="chmap"></div>
+  </section>
+
+  <section class="card">
+    <h2 data-i18n="tune.title"></h2>
+    <div class="row"><label for="STEER_PCT" data-i18n="tune.steer"></label>
+      <div class="slider"><input type="range" id="STEER_PCT_r" min="0" max="100" aria-label="Steering %"><input type="number" id="STEER_PCT" min="0" max="100"></div>
+      <div class="hint" data-i18n="tune.steerHint"></div></div>
+    <div class="row"><label for="OUT_DB" data-i18n="tune.outdb"></label>
+      <div class="slider"><input type="range" id="OUT_DB_r" min="0" max="199" aria-label="Output deadband"><input type="number" id="OUT_DB" min="0" max="199"></div>
+      <div class="hint" id="OUT_DB_hint"></div></div>
+    <div class="row"><label for="CENTER_DB" data-i18n="tune.cdb"></label>
+      <div class="slider"><input type="range" id="CENTER_DB_r" min="1" max="300" aria-label="Center deadband"><input type="number" id="CENTER_DB" min="1" max="819"></div>
+      <div class="hint" id="CENTER_DB_hint"></div></div>
+    <div class="row"><label data-i18n="tune.rev"></label>
+      <div>
+        <label class="toggle"><input type="checkbox" id="INV_LEFT"> <span data-i18n="tune.revL"></span></label>
+        <label class="toggle"><input type="checkbox" id="INV_RIGHT"> <span data-i18n="tune.revR"></span></label>
+        <label class="toggle"><input type="checkbox" id="INV_THR"> <span data-i18n="tune.revT"></span></label>
+        <label class="toggle"><input type="checkbox" id="INV_STEER"> <span data-i18n="tune.revS"></span></label>
+      </div></div>
+    <div class="status" id="valStatus"></div>
+  </section>
+
+  <section class="card full">
+    <h2 data-i18n="sim.title"></h2>
+    <div class="sim">
+      <div>
+        <canvas id="pad" width="220" height="220"></canvas>
+        <div class="readout" id="inReadout"></div>
+      </div>
+      <div>
+        <div class="bars">
+          <div class="bar"><b style="color:var(--left)" data-i18n="sim.left"></b><div class="track"><div class="mid"></div><div class="fill" id="fillL" style="background:var(--left)"></div></div><div class="val" id="valL"></div></div>
+          <div class="bar"><b style="color:var(--right)" data-i18n="sim.right"></b><div class="track"><div class="mid"></div><div class="fill" id="fillR" style="background:var(--right)"></div></div><div class="val" id="valR"></div></div>
+        </div>
+        <div class="simopts">
+          <label class="toggle"><input type="checkbox" id="simSnap" checked> <span data-i18n="sim.snap"></span></label>
+          <label class="toggle"><input type="checkbox" id="simMixOn" checked> <span data-i18n="sim.mixOn"></span></label>
+        </div>
+        <div class="readout" data-i18n="sim.help"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card full">
+    <h2 data-i18n="diff.title"></h2>
+    <pre class="diff" id="diff"></pre>
+  </section>
+
+  <section class="card full">
+    <h2 data-i18n="flash.title"></h2>
+    <ol class="steps">
+      <li data-i18n-html="flash.step1"></li>
+      <li data-i18n-html="flash.step2"></li>
+      <li data-i18n-html="flash.step3"></li>
+    </ol>
+    <div class="row"><label for="phrase" data-i18n="flash.phrase"></label>
+      <div class="slider"><input type="password" id="phrase" autocomplete="off" spellcheck="false" data-i18n-ph="flash.phrasePh">
+        <label class="toggle"><input type="checkbox" id="phraseShow"> <span data-i18n="flash.show"></span></label></div>
+      <div class="hint"><label class="toggle"><input type="checkbox" id="phraseRemember"> <span data-i18n="flash.remember"></span></label></div></div>
+    <div class="row"><label for="radioAddr" data-i18n="flash.addr"></label><input type="text" id="radioAddr" value="10.0.0.1" spellcheck="false">
+      <div class="hint" data-i18n="flash.addrHint"></div></div>
+    <div class="filebar">
+      <button class="primary" id="btnBuild" type="button" data-i18n="flash.build"></button>
+      <button class="primary" id="btnFlash" type="button" data-i18n="flash.flash"></button>
+      <button id="btnForce" type="button" hidden data-i18n="flash.force"></button>
+      <span id="fwInfo" class="name"></span>
+    </div>
+    <div class="status" id="flashStatus"></div>
+    <pre class="log" id="log" hidden></pre>
+  </section>
+</main>
+<footer data-i18n="footer"></footer>
+
+<script>
+"use strict";
+
+// ================================================================ i18n
+const STR = {
+  en: {
+    subtitle: "Tank mixing for the RadioMaster T8L internal ExpressLRS module: install, set up, build and flash.",
+    theme: "Theme: {t}", "theme.system": "system", "theme.light": "light", "theme.dark": "dark",
+    footer: "Only for the RadioMaster T8L: it has no screen for a mixer and the ExpressLRS web UI has no tank mix, so the mix runs in the TX module. Works with ExpressLRS 3.5.0 and newer.",
+    "noserver.title": "Open TankMix with its launcher",
+    "noserver.body": "This page needs the TankMix program running. Start <b>TankMix.bat</b> (Windows), <b>TankMix.command</b> (macOS) or <b>tankmix.sh</b> (Linux) from the TankMix folder; it opens this page by itself.",
+    "check.title": "System check", "check.again": "Check again",
+    "check.python": "Python", "check.pio": "PlatformIO", "check.git": "Git", "check.internet": "Internet",
+    "check.missing": "Not found.",
+    "check.python.fix": "Install Python 3.8 or newer: <a href=\"https://www.python.org/downloads/\" target=\"_blank\" rel=\"noopener\">python.org</a>.",
+    "check.pio.fix": "Install PlatformIO Core: <a href=\"https://docs.platformio.org/en/latest/core/installation/methods/installer-script.html\" target=\"_blank\" rel=\"noopener\">installer script</a> (or the PlatformIO extension for VS Code). Then click Check again.",
+    "check.git.fix": "Install Git: <a href=\"https://git-scm.com/downloads\" target=\"_blank\" rel=\"noopener\">git-scm.com</a>. Then restart TankMix.",
+    "check.internet.fix": "Needed for the first build of each version and to download versions. Flashing works offline.",
+    "check.allok": "✔ Everything needed is installed.",
+    "check.blocked": "✖ Install what is marked in red, then click Check again. Building is disabled until then.",
+    "check.running": "Checking…",
+    "folder.title": "ExpressLRS folder",
+    "folder.path": "Folder", "folder.open": "Open",
+    "folder.pathHint": "Path of an ExpressLRS source folder, version 3.5.0 or newer (the clone root, its src folder, or src/include/tankmix.h).",
+    "folder.download": "Or download", "folder.downloadBtn": "Download",
+    "folder.loadingVersions": "loading versions…", "folder.noVersions": "versions unavailable (needs Git and internet)",
+    "folder.latest": "{v} (latest)",
+    "folder.destHint": "Downloaded versions go to this folder (each one in its own subfolder):",
+    "folder.install": "Install tank mix",
+    "folder.none": "Choose an ExpressLRS folder above, or download a version.",
+    "file.save": "Save", "file.revert": "Revert", "file.unsaved": "● unsaved changes",
+    "file.saved": "Saved at {time}.",
+    "mod.installed": "ExpressLRS {v} · tank mix installed. Save writes to tankmix.h in this folder.",
+    "mod.missing": "ExpressLRS {v} · the tank mix is not installed in this folder yet. Click <b>Install tank mix</b> (adds tankmix.h and two lines in tx_main.cpp; a backup of tx_main.cpp is kept).",
+    "mod.partial": "ExpressLRS {v} · the tank mix is partly installed. Click <b>Install tank mix</b> to finish.",
+    "mod.too_old": "ExpressLRS {v} is too old: the T8L needs 3.5.0 or newer.",
+    "mod.hook": "ExpressLRS {v}: tx_main.cpp has {n} OtaPackChannelData(&otaPkt, ChannelData, …) calls instead of one. This version changed that code; the mod has to be adapted by hand.",
+    "mod.installFailed": "✖ Install failed: {msg}",
+    "ch.title": "Channels", "ch.thr": "Throttle in", "ch.str": "Steering in", "ch.left": "Left motor out",
+    "ch.leftHint": "Receiver output that drives the left ESC.", "ch.right": "Right motor out",
+    "ch.sw": "Mix on/off switch", "ch.swHint": "Mix is on above 1400 (CRSF). Toggles only with both sticks centered.",
+    "ch.weapon": "Weapon", "ch.weaponHint": "The mix never writes to this channel.",
+    "ch.arm": "Arm (fixed)", "ch.armText": "Ch5 — ExpressLRS arm channel, never used by the mix.",
+    "ch.armOpt": " (arm)",
+    "tag.thr": "thr in", "tag.str": "str in", "tag.l": "L out", "tag.r": "R out", "tag.sw": "switch", "tag.weapon": "weapon", "tag.arm": "arm",
+    "tune.title": "Tuning", "tune.steer": "Steering %", "tune.steerHint": "How strong turning is in the mix. Lower = gentler spins.",
+    "tune.outdb": "Output deadband", "tune.cdb": "Center deadband",
+    "tune.outdbHint": "{n} units ≈ {us} µs. Output snaps to neutral inside this band (stops ESC creep).",
+    "tune.cdbHint": "{n} units ≈ {pct}% of travel. Sticks must be inside this to toggle the mix.",
+    "tune.rev": "Reverse", "tune.revL": "Left motor", "tune.revR": "Right motor (mirrored motors)",
+    "tune.revT": "Forward / backward", "tune.revS": "Turning direction",
+    "val.ok": "✔ Valid configuration.", "val.bad": "✖ Cannot save (the firmware would not compile):",
+    "val.range": "{f}: channel out of range.", "val.thrstr": "Throttle and steering are on the same channel.",
+    "val.outs": "Both motor outputs are on the same channel.", "val.weapon": "A motor output is on the WEAPON channel.",
+    "val.armout": "A motor output is on the arm channel (Ch5).", "val.swarm": "Mix switch is on the arm or weapon channel.",
+    "val.swdrive": "Mix switch is on a drive channel.", "val.outdb": "Output deadband must be 0–199.",
+    "val.steer": "Steering % must be 0–100.", "val.cdb": "Center deadband must be 1–819.", "val.bool": "{f} must be 0 or 1.",
+    "warn.inweapon": "A drive input reads the weapon channel.", "warn.inarm": "A drive input reads the arm channel.",
+    "warn.cdb": "Center deadband is large: the switch may toggle with sticks visibly off-center.",
+    "warn.outdb": "Output deadband is large: small stick moves will do nothing.", "warn.steer0": "Steering % is 0: the robot will not turn.",
+    "sim.title": "Preview (same math as the firmware)", "sim.left": "Left", "sim.right": "Right",
+    "sim.snap": "Spring back to center", "sim.mixOn": "Mix on",
+    "sim.help": "Drag the stick. Bars show the signal sent on each output channel (after reverse), in µs.",
+    "sim.readout": "steer {s} µs · throttle {t} µs", "sim.fwd": "fwd", "sim.back": "back", "sim.L": "L", "sim.R": "R",
+    "diff.title": "Changes that will be written", "diff.none": "No changes: the file matches what is on screen.", "diff.empty": "Open an ExpressLRS folder to start.",
+    "flash.title": "Build & flash",
+    "flash.step1": "<b>Build</b> with internet on (the first build of a version downloads the toolchain, a few minutes). Unsaved changes are saved first.",
+    "flash.step2": "On the radio: <b>ExpressLRS</b> Lua script → <b>WiFi Connectivity</b> → <b>Enable WiFi</b>. Connect this computer to the WiFi network the radio creates.",
+    "flash.step3": "<b>Flash to radio</b>. Wait for the radio to reboot, then reconnect the computer to your normal WiFi.",
+    "flash.phrase": "Binding phrase", "flash.phrasePh": "same phrase as the receiver", "flash.show": "show",
+    "flash.remember": "Remember on this computer (stored in this browser only)",
+    "flash.addr": "Radio address", "flash.addrHint": "10.0.0.1 when connected to the radio's own WiFi.",
+    "flash.build": "Build firmware", "flash.flash": "Flash to radio", "flash.force": "Flash anyway",
+    "fw.none": "No firmware built yet.", "fw.info": "Firmware built {time}, {kb} KB — ",
+    "fw.fresh": "matches tankmix.h", "fw.stale": "older than tankmix.h, build again",
+    "job.download": "Downloading ExpressLRS {v}…", "job.build": "Building… (the first build of a version takes a few minutes)",
+    "job.flash": "Sending firmware to the radio…", "job.confirm": "Confirming update on the radio…",
+    "job.download.ok": "✔ ExpressLRS downloaded and the tank mix installed.",
+    "job.build.ok": "✔ Build finished. Connect to the radio's WiFi and click Flash to radio.",
+    "job.flash.ok": "✔ Firmware sent. The radio reboots by itself in a few seconds.",
+    "job.nophrase": "No binding phrase: the firmware keeps whatever phrase is in user_defines.txt (or none).",
+    "job.fixfirst": "✖ Fix the configuration errors first.", "job.buildfirst": "✖ Build the firmware first.",
+    "job.confirmStale": "The firmware is older than tankmix.h. Flash it anyway?",
+    "job.lost": "Lost contact with TankMix: {msg}",
+    "code.build_failed": "✖ Build failed. The error is in the log below.",
+    "code.no_pio": "✖ PlatformIO was not found. See the system check at the top.",
+    "code.no_git": "✖ Git was not found. See the system check at the top.",
+    "code.not_installed": "✖ Install the tank mix first.",
+    "code.clone_failed": "✖ Download failed. Check the internet connection; the log is below.",
+    "code.dest_busy": "✖ That folder already exists and is not ExpressLRS. Choose another destination.",
+    "code.install_failed": "✖ Downloaded, but the tank mix could not be installed. See the log.",
+    "code.unreachable": "✖ Could not reach the radio. Is it in WiFi mode and is this computer on its network?",
+    "code.mismatch": "The radio reports a different target name. Read the log; if it is the T8L, click Flash anyway.",
+    "code.flash_failed": "✖ Flash failed. See the log below.", "code.no_firmware": "✖ Build the firmware first.",
+    "code.exception": "✖ Unexpected error. See the log below.",
+    "err.not_elrs": "That is not an ExpressLRS source folder (no src/platformio.ini and src/src/tx_main.cpp).",
+    "err.too_old": "That ExpressLRS is too old: the T8L needs 3.5.0 or newer.",
+    "err.busy": "Wait for the current task to finish.", "err.bad_version": "Choose a version first.",
+    "err.versions_failed": "Could not list the versions (needs Git and internet).",
+    "err.not_installed": "Install the tank mix first.", "err.no_folder": "Open an ExpressLRS folder first.",
+    "err.bad_phrase": "Invalid binding phrase.", "err.bad_address": "Invalid radio address.",
+    "err.bad_header": "tankmix.h is missing defines: {detail}",
+    "err.generic": "Error: {detail}",
+    "save.conflict": "tankmix.h changed on disk since it was opened. Overwrite the defines anyway?\n(Other edits in the file are kept.)",
+    "save.failed": "Save failed: {msg}", "save.badfile": "This does not look like this fork's tankmix.h, missing: {list}",
+    "save.internal": "Internal error: write check failed, nothing saved."
+  },
+  pt: {
+    subtitle: "Tank mix para o módulo ExpressLRS interno do RadioMaster T8L: instale, configure, compile e grave.",
+    theme: "Tema: {t}", "theme.system": "sistema", "theme.light": "claro", "theme.dark": "escuro",
+    footer: "Só para o RadioMaster T8L: ele não tem tela para mixer e a interface web do ExpressLRS não tem tank mix, então o mix roda no módulo TX. Funciona com o ExpressLRS 3.5.0 ou mais novo.",
+    "noserver.title": "Abra o TankMix pelo atalho",
+    "noserver.body": "Esta página precisa do programa TankMix rodando. Abra o <b>TankMix.bat</b> (Windows), <b>TankMix.command</b> (macOS) ou <b>tankmix.sh</b> (Linux) na pasta TankMix; ele abre esta página sozinho.",
+    "check.title": "Verificação do sistema", "check.again": "Verificar de novo",
+    "check.python": "Python", "check.pio": "PlatformIO", "check.git": "Git", "check.internet": "Internet",
+    "check.missing": "Não encontrado.",
+    "check.python.fix": "Instale o Python 3.8 ou mais novo: <a href=\"https://www.python.org/downloads/\" target=\"_blank\" rel=\"noopener\">python.org</a>.",
+    "check.pio.fix": "Instale o PlatformIO Core: <a href=\"https://docs.platformio.org/en/latest/core/installation/methods/installer-script.html\" target=\"_blank\" rel=\"noopener\">script de instalação</a> (ou a extensão PlatformIO do VS Code). Depois clique em Verificar de novo.",
+    "check.git.fix": "Instale o Git: <a href=\"https://git-scm.com/downloads\" target=\"_blank\" rel=\"noopener\">git-scm.com</a>. Depois reabra o TankMix.",
+    "check.internet.fix": "Precisa na primeira compilação de cada versão e para baixar versões. Gravar funciona sem internet.",
+    "check.allok": "✔ Tudo o que é preciso está instalado.",
+    "check.blocked": "✖ Instale o que está em vermelho e clique em Verificar de novo. Até lá, compilar fica desativado.",
+    "check.running": "Verificando…",
+    "folder.title": "Pasta do ExpressLRS",
+    "folder.path": "Pasta", "folder.open": "Abrir",
+    "folder.pathHint": "Caminho de uma pasta do código do ExpressLRS, versão 3.5.0 ou mais nova (a raiz do clone, a pasta src ou o src/include/tankmix.h).",
+    "folder.download": "Ou baixe", "folder.downloadBtn": "Baixar",
+    "folder.loadingVersions": "carregando versões…", "folder.noVersions": "versões indisponíveis (precisa de Git e internet)",
+    "folder.latest": "{v} (mais nova)",
+    "folder.destHint": "As versões baixadas vão para esta pasta (cada uma na sua subpasta):",
+    "folder.install": "Instalar tank mix",
+    "folder.none": "Escolha uma pasta do ExpressLRS acima ou baixe uma versão.",
+    "file.save": "Salvar", "file.revert": "Desfazer", "file.unsaved": "● alterações não salvas",
+    "file.saved": "Salvo às {time}.",
+    "mod.installed": "ExpressLRS {v} · tank mix instalado. Salvar grava no tankmix.h desta pasta.",
+    "mod.missing": "ExpressLRS {v} · o tank mix ainda não está instalado nesta pasta. Clique em <b>Instalar tank mix</b> (adiciona o tankmix.h e duas linhas no tx_main.cpp; uma cópia do tx_main.cpp original é guardada).",
+    "mod.partial": "ExpressLRS {v} · o tank mix está instalado pela metade. Clique em <b>Instalar tank mix</b> para terminar.",
+    "mod.too_old": "O ExpressLRS {v} é antigo demais: o T8L precisa do 3.5.0 ou mais novo.",
+    "mod.hook": "ExpressLRS {v}: o tx_main.cpp tem {n} chamadas OtaPackChannelData(&otaPkt, ChannelData, …) em vez de uma. Esta versão mudou esse código; o mod precisa ser adaptado à mão.",
+    "mod.installFailed": "✖ A instalação falhou: {msg}",
+    "ch.title": "Canais", "ch.thr": "Entrada acelerador", "ch.str": "Entrada direção", "ch.left": "Saída motor esquerdo",
+    "ch.leftHint": "Saída do receptor que comanda o ESC esquerdo.", "ch.right": "Saída motor direito",
+    "ch.sw": "Chave liga/desliga mix", "ch.swHint": "O mix liga acima de 1400 (CRSF). Só muda com os dois sticks no centro.",
+    "ch.weapon": "Arma", "ch.weaponHint": "O mix nunca escreve neste canal.",
+    "ch.arm": "Arm (fixo)", "ch.armText": "Ch5 — canal de arm do ExpressLRS, nunca usado pelo mix.",
+    "ch.armOpt": " (arm)",
+    "tag.thr": "acel", "tag.str": "dir", "tag.l": "saída E", "tag.r": "saída D", "tag.sw": "chave", "tag.weapon": "arma", "tag.arm": "arm",
+    "tune.title": "Ajustes", "tune.steer": "Direção %", "tune.steerHint": "Força da curva no mix. Menor = giros mais suaves.",
+    "tune.outdb": "Zona morta saída", "tune.cdb": "Zona morta centro",
+    "tune.outdbHint": "{n} unidades ≈ {us} µs. Dentro dessa faixa a saída vai exatamente para o neutro (o ESC não fica girando sozinho).",
+    "tune.cdbHint": "{n} unidades ≈ {pct}% do curso. Os sticks precisam estar dentro disso para ligar/desligar o mix.",
+    "tune.rev": "Inverter", "tune.revL": "Motor esquerdo", "tune.revR": "Motor direito (motores espelhados)",
+    "tune.revT": "Frente / trás", "tune.revS": "Sentido da curva",
+    "val.ok": "✔ Configuração válida.", "val.bad": "✖ Não dá para salvar (o firmware não compilaria):",
+    "val.range": "{f}: canal fora da faixa.", "val.thrstr": "Acelerador e direção estão no mesmo canal.",
+    "val.outs": "As duas saídas dos motores estão no mesmo canal.", "val.weapon": "Uma saída de motor está no canal da ARMA.",
+    "val.armout": "Uma saída de motor está no canal de arm (Ch5).", "val.swarm": "A chave do mix está no canal de arm ou da arma.",
+    "val.swdrive": "A chave do mix está num canal de tração.", "val.outdb": "A zona morta da saída tem que ser 0–199.",
+    "val.steer": "Direção % tem que ser 0–100.", "val.cdb": "A zona morta do centro tem que ser 1–819.", "val.bool": "{f} tem que ser 0 ou 1.",
+    "warn.inweapon": "Uma entrada de tração lê o canal da arma.", "warn.inarm": "Uma entrada de tração lê o canal de arm.",
+    "warn.cdb": "Zona morta do centro grande: a chave pode mudar com os sticks visivelmente fora do centro.",
+    "warn.outdb": "Zona morta da saída grande: movimentos pequenos do stick não farão nada.", "warn.steer0": "Direção % está em 0: o robô não vai virar.",
+    "sim.title": "Prévia (mesma conta do firmware)", "sim.left": "Esquerdo", "sim.right": "Direito",
+    "sim.snap": "Voltar ao centro", "sim.mixOn": "Mix ligado",
+    "sim.help": "Arraste o stick. As barras mostram o sinal enviado em cada canal de saída (depois da inversão), em µs.",
+    "sim.readout": "direção {s} µs · acelerador {t} µs", "sim.fwd": "frente", "sim.back": "trás", "sim.L": "E", "sim.R": "D",
+    "diff.title": "Mudanças que serão gravadas", "diff.none": "Nenhuma mudança: o arquivo está igual à tela.", "diff.empty": "Abra uma pasta do ExpressLRS para começar.",
+    "flash.title": "Compilar e gravar",
+    "flash.step1": "<b>Compilar</b> com internet (a primeira compilação de cada versão baixa as ferramentas, alguns minutos). Mudanças não salvas são salvas antes.",
+    "flash.step2": "No rádio: script Lua do <b>ExpressLRS</b> → <b>WiFi Connectivity</b> → <b>Enable WiFi</b>. Conecte este computador na rede WiFi que o rádio cria.",
+    "flash.step3": "<b>Gravar no rádio</b>. Espere o rádio reiniciar e volte o computador para o seu WiFi normal.",
+    "flash.phrase": "Binding phrase", "flash.phrasePh": "a mesma do receptor", "flash.show": "mostrar",
+    "flash.remember": "Lembrar neste computador (fica só neste navegador)",
+    "flash.addr": "Endereço do rádio", "flash.addrHint": "10.0.0.1 quando conectado na rede WiFi do próprio rádio.",
+    "flash.build": "Compilar firmware", "flash.flash": "Gravar no rádio", "flash.force": "Gravar mesmo assim",
+    "fw.none": "Nenhum firmware compilado ainda.", "fw.info": "Firmware compilado em {time}, {kb} KB — ",
+    "fw.fresh": "igual ao tankmix.h", "fw.stale": "mais antigo que o tankmix.h, compile de novo",
+    "job.download": "Baixando o ExpressLRS {v}…", "job.build": "Compilando… (a primeira compilação de cada versão demora alguns minutos)",
+    "job.flash": "Enviando o firmware para o rádio…", "job.confirm": "Confirmando a atualização no rádio…",
+    "job.download.ok": "✔ ExpressLRS baixado e tank mix instalado.",
+    "job.build.ok": "✔ Compilação concluída. Conecte na rede WiFi do rádio e clique em Gravar no rádio.",
+    "job.flash.ok": "✔ Firmware enviado. O rádio reinicia sozinho em alguns segundos.",
+    "job.nophrase": "Sem binding phrase: o firmware fica com a frase do user_defines.txt (ou nenhuma).",
+    "job.fixfirst": "✖ Corrija os erros de configuração antes.", "job.buildfirst": "✖ Compile o firmware antes.",
+    "job.confirmStale": "O firmware é mais antigo que o tankmix.h. Gravar mesmo assim?",
+    "job.lost": "Perdi o contato com o TankMix: {msg}",
+    "code.build_failed": "✖ A compilação falhou. O erro está no log abaixo.",
+    "code.no_pio": "✖ O PlatformIO não foi encontrado. Veja a verificação do sistema no topo.",
+    "code.no_git": "✖ O Git não foi encontrado. Veja a verificação do sistema no topo.",
+    "code.not_installed": "✖ Instale o tank mix antes.",
+    "code.clone_failed": "✖ O download falhou. Confira a internet; o log está abaixo.",
+    "code.dest_busy": "✖ Essa pasta já existe e não é do ExpressLRS. Escolha outro destino.",
+    "code.install_failed": "✖ Baixou, mas não deu para instalar o tank mix. Veja o log.",
+    "code.unreachable": "✖ Não consegui falar com o rádio. Ele está em modo WiFi e o computador está na rede dele?",
+    "code.mismatch": "O rádio informa outro nome de target. Leia o log; se for o T8L, clique em Gravar mesmo assim.",
+    "code.flash_failed": "✖ A gravação falhou. Veja o log abaixo.", "code.no_firmware": "✖ Compile o firmware antes.",
+    "code.exception": "✖ Erro inesperado. Veja o log abaixo.",
+    "err.not_elrs": "Essa não é uma pasta do código do ExpressLRS (sem src/platformio.ini e src/src/tx_main.cpp).",
+    "err.too_old": "Esse ExpressLRS é antigo demais: o T8L precisa do 3.5.0 ou mais novo.",
+    "err.busy": "Espere a tarefa atual terminar.", "err.bad_version": "Escolha uma versão antes.",
+    "err.versions_failed": "Não deu para listar as versões (precisa de Git e internet).",
+    "err.not_installed": "Instale o tank mix antes.", "err.no_folder": "Abra uma pasta do ExpressLRS antes.",
+    "err.bad_phrase": "Binding phrase inválida.", "err.bad_address": "Endereço do rádio inválido.",
+    "err.bad_header": "Faltam defines no tankmix.h: {detail}",
+    "err.generic": "Erro: {detail}",
+    "save.conflict": "O tankmix.h mudou no disco desde que foi aberto. Sobrescrever os defines mesmo assim?\n(As outras edições do arquivo são mantidas.)",
+    "save.failed": "Não deu para salvar: {msg}", "save.badfile": "Isto não parece o tankmix.h deste fork, faltando: {list}",
+    "save.internal": "Erro interno: a conferência da gravação falhou, nada foi salvo."
+  }
+};
+let lang = "en";
+try { lang = localStorage.getItem("tankmix-lang") || ""; } catch (e) {}
+if (!STR[lang]) lang = (navigator.language || "").toLowerCase().startsWith("pt") ? "pt" : "en";
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function t(key, vars) {
+  let s = (STR[lang][key] ?? STR.en[key] ?? key);
+  if (vars) s = s.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m));
+  return s;
+}
+const $ = id => document.getElementById(id);
+
+// status lines remember their key so a language switch re-renders them
+const msgs = {};
+function setMsg(slot, key, vars, cls) { msgs[slot] = { key, vars, cls }; renderMsg(slot); }
+function renderMsg(slot) {
+  const m = msgs[slot], el = $(slot);
+  if (!m || !m.key) { el.innerHTML = ""; return; }
+  const v = {}; for (const k in (m.vars || {})) v[k] = esc(m.vars[k]);   // values escaped, templates trusted
+  el.innerHTML = `<span class="${m.cls || ""}">${t(m.key, v)}</span>`;
+}
+function errMsg(e) {
+  const code = e.code || "generic";
+  return { key: STR.en["err." + code] ? "err." + code : "err.generic", vars: { detail: e.detail || e.message || code } };
+}
+
+function applyLang() {
+  document.documentElement.lang = lang === "pt" ? "pt-BR" : "en";
+  $("langEn").setAttribute("aria-pressed", lang === "en"); $("langPt").setAttribute("aria-pressed", lang === "pt");
+  document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-html]").forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+  $("btnTheme").textContent = t("theme", { t: t("theme." + theme) });
+  buildChannelOptions();
+  Object.keys(msgs).forEach(renderMsg);
+  renderChecks(); renderVersions(); updateFwInfo(lastFw);
+  refresh(); drawSim();
+}
+function setLang(l) { lang = l; try { localStorage.setItem("tankmix-lang", l); } catch (e) {} applyLang(); }
+$("langEn").addEventListener("click", () => setLang("en"));
+$("langPt").addEventListener("click", () => setLang("pt"));
+
+// ================================================================ mixer model
+const CH_FIELDS = ["THR_IN", "STR_IN", "LEFT_OUT", "RIGHT_OUT", "SW_CH", "WEAPON_CH"];
+const NUM_FIELDS = ["STEER_PCT", "OUT_DB", "CENTER_DB"];
+const BOOL_FIELDS = ["INV_LEFT", "INV_RIGHT", "INV_THR", "INV_STEER"];
+const ALL_FIELDS = [...CH_FIELDS, ...NUM_FIELDS, ...BOOL_FIELDS];
+const ARM_CH = 4;
+const MID = 992, HALF = 819, MIN = MID - HALF, MAX = MID + HALF;
+const crsfToUs = v => Math.round((v - MID) * 5 / 8 + 1500);
+
+let originalText = null, cfg = {}, savedCfg = {};
+
+function defineRegex(name) { return new RegExp("^([ \\t]*#define[ \\t]+TANKMIX_" + name + "[ \\t]+)(-?\\d+)", "m"); }
+function parse(text) {
+  const out = {}, missing = [];
+  for (const f of ALL_FIELDS) { const m = text.match(defineRegex(f)); if (m) out[f] = parseInt(m[2], 10); else missing.push(f); }
+  return { values: out, missing };
+}
+function serialize(text, values) {
+  let s = text;
+  for (const f of ALL_FIELDS) {
+    const re = new RegExp("^([ \\t]*#define[ \\t]+TANKMIX_" + f + "[ \\t]+)(-?\\d+)([^\\r\\n]*)", "m");
+    s = s.replace(re, (all, pre, num, rest) => {
+      const v = values[f];
+      if (String(v) === num) return all;
+      const newNum = String(v);
+      if (rest.startsWith(" ") && newNum.length !== num.length) {   // keep comment column
+        const pad = rest.match(/^ */)[0].length + num.length - newNum.length;
+        rest = " ".repeat(Math.max(1, pad)) + rest.replace(/^ */, "");
+      }
+      if (CH_FIELDS.includes(f)) rest = rest.replace(/\bCh\d+\b/, "Ch" + (v + 1)).replace(/receiver output \d+/, "receiver output " + (v + 1));
+      return pre + newNum + rest;
+    });
+  }
+  return s;
+}
+
+// mirrors the static_asserts in tankmix.h; returns translation keys
+function validate(c) {
+  const e = [], w = [];
+  const inRange = (v, lo, hi) => Number.isInteger(v) && v >= lo && v <= hi;
+  for (const f of CH_FIELDS) if (!inRange(c[f], 0, 15)) e.push(["val.range", { f }]);
+  if (c.THR_IN === c.STR_IN) e.push(["val.thrstr"]);
+  if (c.LEFT_OUT === c.RIGHT_OUT) e.push(["val.outs"]);
+  if (c.LEFT_OUT === c.WEAPON_CH || c.RIGHT_OUT === c.WEAPON_CH) e.push(["val.weapon"]);
+  if (c.LEFT_OUT === ARM_CH || c.RIGHT_OUT === ARM_CH) e.push(["val.armout"]);
+  if (c.SW_CH === ARM_CH || c.SW_CH === c.WEAPON_CH) e.push(["val.swarm"]);
+  if ([c.LEFT_OUT, c.RIGHT_OUT, c.THR_IN, c.STR_IN].includes(c.SW_CH)) e.push(["val.swdrive"]);
+  if (!inRange(c.OUT_DB, 0, 199)) e.push(["val.outdb"]);
+  if (!inRange(c.STEER_PCT, 0, 100)) e.push(["val.steer"]);
+  if (!inRange(c.CENTER_DB, 1, HALF)) e.push(["val.cdb"]);
+  for (const f of BOOL_FIELDS) if (c[f] !== 0 && c[f] !== 1) e.push(["val.bool", { f }]);
+  if (c.THR_IN === c.WEAPON_CH || c.STR_IN === c.WEAPON_CH) w.push(["warn.inweapon"]);
+  if (c.THR_IN === ARM_CH || c.STR_IN === ARM_CH) w.push(["warn.inarm"]);
+  if (c.CENTER_DB > 150) w.push(["warn.cdb"]);
+  if (c.OUT_DB > 80) w.push(["warn.outdb"]);
+  if (c.STEER_PCT === 0) w.push(["warn.steer0"]);
+  return { errors: e, warnings: w };
+}
+
+// integer math identical to tankMixApply() in tankmix.h
+const cdiv = (a, b) => Math.trunc(a / b);
+function mix(c, thrRaw, strRaw) {
+  let thr = thrRaw - MID, str = strRaw - MID;
+  if (c.INV_THR) thr = -thr;
+  if (c.INV_STEER) str = -str;
+  str = cdiv(str * c.STEER_PCT, 100);
+  let left = thr + str, right = thr - str;
+  const peak = Math.max(Math.abs(left), Math.abs(right));
+  if (peak > HALF) { left = cdiv(left * HALF, peak); right = cdiv(right * HALF, peak); }
+  if (left > -c.OUT_DB && left < c.OUT_DB) left = 0;
+  if (right > -c.OUT_DB && right < c.OUT_DB) right = 0;
+  if (c.INV_LEFT) left = -left;
+  if (c.INV_RIGHT) right = -right;
+  const clamp = v => Math.min(MAX, Math.max(MIN, v));
+  return { left: clamp(MID + left), right: clamp(MID + right) };
+}
+
+// ================================================================ editor UI
+function buildChannelOptions() {
+  for (const f of CH_FIELDS) {
+    const s = $(f), keep = s.value;
+    s.innerHTML = "";
+    for (let i = 0; i < 16; i++) {
+      const o = document.createElement("option");
+      o.value = i; o.textContent = "Ch" + (i + 1) + (i === ARM_CH ? t("ch.armOpt") : "");
+      s.appendChild(o);
+    }
+    if (originalText != null) s.value = cfg[f]; else if (keep) s.value = keep;
+  }
+}
+function wireInputs() {
+  for (const f of CH_FIELDS) $(f).addEventListener("change", () => { cfg[f] = parseInt($(f).value, 10); refresh(); });
+  for (const f of NUM_FIELDS) {
+    const n = $(f), r = $(f + "_r");
+    n.addEventListener("input", () => { cfg[f] = parseInt(n.value, 10); r.value = n.value; refresh(); });
+    r.addEventListener("input", () => { cfg[f] = parseInt(r.value, 10); n.value = r.value; refresh(); });
+  }
+  for (const f of BOOL_FIELDS) $(f).addEventListener("change", () => { cfg[f] = $(f).checked ? 1 : 0; refresh(); });
+}
+function setEditorEnabled(on) {
+  for (const f of ALL_FIELDS) { $(f).disabled = !on; if ($(f + "_r")) $(f + "_r").disabled = !on; }
+}
+function loadIntoUI() {
+  for (const f of CH_FIELDS) $(f).value = cfg[f];
+  for (const f of NUM_FIELDS) { $(f).value = cfg[f]; $(f + "_r").value = cfg[f]; }
+  for (const f of BOOL_FIELDS) $(f).checked = !!cfg[f];
+}
+const isDirty = () => originalText != null && ALL_FIELDS.some(f => cfg[f] !== savedCfg[f]);
+
+function renderChMap() {
+  const roles = {};
+  const add = (ch, tag) => (roles[ch] = roles[ch] || []).push(tag);
+  add(cfg.THR_IN, "thr"); add(cfg.STR_IN, "str"); add(cfg.LEFT_OUT, "l"); add(cfg.RIGHT_OUT, "r");
+  add(cfg.SW_CH, "sw"); add(cfg.WEAPON_CH, "weapon"); add(ARM_CH, "arm");
+  const html = [];
+  for (let i = 0; i < 16; i++) {
+    const r = roles[i] || [];
+    const clash = r.filter(x => x !== "thr" && x !== "str").length > 1 || (r.includes("sw") && r.length > 1);
+    html.push(`<div class="${clash ? "err" : r.length ? "used" : ""}">Ch${i + 1}<span class="tag">${r.map(x => t("tag." + x)).join(", ") || "&nbsp;"}</span></div>`);
+  }
+  $("chmap").innerHTML = html.join("");
+}
+function renderDiff() {
+  if (originalText == null) { $("diff").textContent = t("diff.empty"); return; }
+  const lines = [];
+  for (const f of ALL_FIELDS) if (cfg[f] !== savedCfg[f]) {
+    const fmt = v => CH_FIELDS.includes(f) ? `${v}  (Ch${v + 1})` : String(v);
+    lines.push(`<span class="del">- TANKMIX_${f} ${fmt(savedCfg[f])}</span>`, `<span class="add">+ TANKMIX_${f} ${fmt(cfg[f])}</span>`);
+  }
+  $("diff").innerHTML = lines.length ? lines.join("\n") : esc(t("diff.none"));
+}
+function refresh() {
+  renderDiff();
+  if (originalText == null) { $("valStatus").innerHTML = ""; $("chmap").innerHTML = ""; $("dirty").textContent = ""; updateButtons(); return; }
+  const v = validate(cfg);
+  const li = (a, cls) => `<li class="${cls}">${esc(t(a[0], a[1]))}</li>`;
+  $("valStatus").innerHTML = (v.errors.length ? `<span class="bad">${esc(t("val.bad"))}</span><ul>${v.errors.map(a => li(a, "bad")).join("")}</ul>`
+    : `<span class="ok">${esc(t("val.ok"))}</span>`) + (v.warnings.length ? `<ul>${v.warnings.map(a => li(a, "warn")).join("")}</ul>` : "");
+  $("dirty").textContent = isDirty() ? t("file.unsaved") : "";
+  $("OUT_DB_hint").textContent = t("tune.outdbHint", { n: cfg.OUT_DB, us: (cfg.OUT_DB * 5 / 8).toFixed(1) });
+  $("CENTER_DB_hint").textContent = t("tune.cdbHint", { n: cfg.CENTER_DB, pct: (cfg.CENTER_DB / HALF * 100).toFixed(1) });
+  renderChMap(); updateButtons(); drawSim();
+}
+
+// ================================================================ simulator
+const sim = { x: 0, y: 0, drag: false };
+const pad = $("pad"), ctx = pad.getContext("2d");
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+function drawSim() {
+  const W = pad.width, H = pad.height, R = W / 2 - 14;
+  ctx.clearRect(0, 0, W, H);
+  ctx.strokeStyle = css("--line"); ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(W / 2, 8); ctx.lineTo(W / 2, H - 8); ctx.moveTo(8, H / 2); ctx.lineTo(W - 8, H / 2); ctx.stroke();
+  ctx.strokeRect(14, 14, W - 28, H - 28);
+  if (originalText != null) {
+    const cd = cfg.CENTER_DB / HALF * R;
+    ctx.fillStyle = css("--muted"); ctx.globalAlpha = .18; ctx.fillRect(W / 2 - cd, H / 2 - cd, cd * 2, cd * 2); ctx.globalAlpha = 1;
+  }
+  ctx.fillStyle = css("--muted"); ctx.font = "11px system-ui";
+  ctx.fillText(t("sim.fwd"), W / 2 + 4, 12); ctx.fillText(t("sim.back"), W / 2 + 4, H - 3);
+  ctx.fillText(t("sim.L"), 2, H / 2 - 4); ctx.fillText(t("sim.R"), W - 10, H / 2 - 4);
+  ctx.fillStyle = css("--accent"); ctx.beginPath(); ctx.arc(W / 2 + sim.x * R, H / 2 - sim.y * R, 11, 0, Math.PI * 2); ctx.fill();
+  const strRaw = Math.round(MID + sim.x * HALF), thrRaw = Math.round(MID + sim.y * HALF);
+  $("inReadout").textContent = t("sim.readout", { s: crsfToUs(strRaw), t: crsfToUs(thrRaw) });
+  if (originalText == null) return;
+  const pass = ch => ch === cfg.THR_IN ? thrRaw : ch === cfg.STR_IN ? strRaw : MID;   // mix off = passthrough
+  const o = $("simMixOn").checked ? mix(cfg, thrRaw, strRaw) : { left: pass(cfg.LEFT_OUT), right: pass(cfg.RIGHT_OUT) };
+  const fill = (el, v) => { const fr = (v - MID) / HALF, h = Math.abs(fr) * 50; el.style.height = h + "%"; el.style.top = fr >= 0 ? (50 - h) + "%" : "50%"; };
+  fill($("fillL"), o.left); fill($("fillR"), o.right);
+  $("valL").textContent = `Ch${cfg.LEFT_OUT + 1}: ${crsfToUs(o.left)}`;
+  $("valR").textContent = `Ch${cfg.RIGHT_OUT + 1}: ${crsfToUs(o.right)}`;
+}
+function padMove(e) {
+  const r = pad.getBoundingClientRect(), R = r.width / 2 - 14 * r.width / pad.width;
+  sim.x = Math.max(-1, Math.min(1, (e.clientX - r.left - r.width / 2) / R));
+  sim.y = Math.max(-1, Math.min(1, -(e.clientY - r.top - r.height / 2) / R));
+  drawSim();
+}
+pad.addEventListener("pointerdown", e => { sim.drag = true; pad.setPointerCapture(e.pointerId); padMove(e); });
+pad.addEventListener("pointermove", e => { if (sim.drag) padMove(e); });
+const release = () => { sim.drag = false; if ($("simSnap").checked) { sim.x = 0; sim.y = 0; } drawSim(); };
+pad.addEventListener("pointerup", release); pad.addEventListener("pointercancel", release);
+$("simMixOn").addEventListener("change", drawSim); $("simSnap").addEventListener("change", release);
+
+// ================================================================ theme
+const THEMES = ["system", "light", "dark"];
+let theme = "system";
+try { theme = localStorage.getItem("tankmix-theme") || "system"; } catch (e) {}
+if (!THEMES.includes(theme)) theme = "system";
+function applyTheme() {
+  if (theme === "system") document.documentElement.removeAttribute("data-theme");
+  else document.documentElement.setAttribute("data-theme", theme);
+  $("btnTheme").textContent = t("theme", { t: t("theme." + theme) });
+  drawSim();
+}
+$("btnTheme").addEventListener("click", () => {
+  theme = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
+  try { localStorage.setItem("tankmix-theme", theme); } catch (e) {}
+  applyTheme();
+});
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawSim);
+
+// ================================================================ server API
+const SERVER_TOKEN = "__TANKMIX_SERVER_TOKEN__";
+const SERVER = location.protocol.startsWith("http") && !SERVER_TOKEN.startsWith("__");
+async function api(method, path, body) {
+  const r = await fetch(path, { method, headers: { "X-Token": SERVER_TOKEN, "Content-Type": "application/json" },
+    body: body === undefined ? undefined : JSON.stringify(body) });
+  let j = {};
+  try { j = await r.json(); } catch (e) {}
+  if (!r.ok) { const e = new Error(j.detail || j.error || ("HTTP " + r.status)); e.code = j.error; e.detail = j.detail; throw e; }
+  return j;
+}
+
+let info = null, checks = null, versions = null, versionsFailed = false, lastFw = null, logNext = 0, polling = false, busy = false;
+const reqOk = () => checks && ["python", "pio", "git"].every(k => checks[k].ok);
+const installed = () => info && info.mod && info.mod.state === "installed";
+
+function updateButtons() {
+  const valid = originalText != null && validate(cfg).errors.length === 0;
+  $("btnSave").disabled = busy || !installed() || !isDirty() || !valid;
+  $("btnRevert").disabled = busy || !isDirty();
+  $("btnBuild").disabled = busy || !installed() || !reqOk();
+  $("btnFlash").disabled = busy || !installed();
+  $("btnForce").disabled = busy;
+  $("btnInstall").disabled = busy;
+  $("btnOpenFolder").disabled = busy;
+  $("btnDownload").disabled = busy || !versions || !versions.length;
+}
+
+// ---- system check ----
+function renderChecks() {
+  if (!checks) { $("checks").innerHTML = ""; setMsg("checkStatus", "check.running", null, ""); return; }
+  $("checks").innerHTML = ["python", "pio", "git", "internet"].map(k => {
+    const c = checks[k], cls = c.ok ? "is-ok" : c.required ? "is-bad" : "is-warn";
+    const mark = c.ok ? "✔" : c.required ? "✖" : "!";
+    const detail = c.ok ? esc(c.detail) : `${esc(t("check.missing"))} ${t("check." + k + ".fix")}`;
+    return `<div class="check ${cls}"><b>${mark} ${esc(t("check." + k))}</b><span class="d">${detail}</span></div>`;
+  }).join("");
+}
+async function runChecks() {
+  checks = null; renderChecks();
+  try { checks = await api("GET", "/api/check"); } catch (e) { setMsg("checkStatus", errMsg(e).key, errMsg(e).vars, "bad"); return; }
+  renderChecks();
+  setMsg("checkStatus", reqOk() ? "check.allok" : "check.blocked", null, reqOk() ? "ok" : "bad");
+  updateButtons();
+}
+$("btnRecheck").addEventListener("click", runChecks);
+
+// ---- versions ----
+function renderVersions() {
+  const s = $("verSel"), keep = s.value;
+  if (!versions) { s.innerHTML = `<option value="">${esc(t(versionsFailed ? "folder.noVersions" : "folder.loadingVersions"))}</option>`; return; }
+  s.innerHTML = versions.map((v, i) => `<option value="${esc(v)}">${esc(i === 0 ? t("folder.latest", { v }) : v)}</option>`).join("");
+  if (keep) s.value = keep;
+}
+async function loadVersions() {
+  try { versions = (await api("GET", "/api/versions")).versions; } catch (e) { versions = null; versionsFailed = true; }
+  renderVersions(); updateButtons();
+}
+
+// ---- folder & mod ----
+function recentPaths() { try { return JSON.parse(localStorage.getItem("tankmix-recent") || "[]"); } catch (e) { return []; } }
+function renderRecent() { $("recentPaths").innerHTML = recentPaths().map(x => `<option value="${esc(x)}"></option>`).join(""); }
+function rememberPath(p) {
+  if (!p) return;
+  const list = [p, ...recentPaths().filter(x => x && x !== p)].slice(0, 8);
+  try { localStorage.setItem("tankmix-recent", JSON.stringify(list)); } catch (e) {}
+  renderRecent();
+}
+
+function clearEditor() { originalText = null; cfg = {}; savedCfg = {}; setEditorEnabled(false); refresh(); drawSim(); }
+
+async function showFolder(newInfo) {
+  info = newInfo;
+  updateFwInfo(info.firmware);
+  if (!info.src) { clearEditor(); $("fileName").textContent = ""; $("btnInstall").hidden = true; setMsg("fileStatus", "folder.none", null, ""); updateButtons(); return; }
+  $("elrsPath").value = info.src.replace(/[\\/]src$/, "");
+  rememberPath($("elrsPath").value);
+  $("fileName").textContent = info.header;
+  const m = info.mod, v = m.version;
+  $("btnInstall").hidden = !(m.state === "missing" || m.state === "partial");
+  if (m.state === "installed") {
+    try {
+      const h = await api("GET", "/api/header");
+      const p = parse(h.text);
+      if (p.missing.length) { clearEditor(); setMsg("fileStatus", "save.badfile", { list: p.missing.map(x => "TANKMIX_" + x).join(", ") }, "bad"); return; }
+      originalText = h.text; savedCfg = { ...p.values }; cfg = { ...p.values };
+      setEditorEnabled(true); loadIntoUI(); refresh();
+      setMsg("fileStatus", "mod.installed", { v }, "ok");
+    } catch (e) { setMsg("fileStatus", errMsg(e).key, errMsg(e).vars, "bad"); }
+  } else {
+    clearEditor();
+    if (m.state === "unsupported") setMsg("fileStatus", m.reason === "too_old" ? "mod.too_old" : "mod.hook", { v, n: m.calls }, "bad");
+    else setMsg("fileStatus", "mod." + m.state, { v }, "warn");
+  }
+  updateButtons();
+}
+
+$("btnOpenFolder").addEventListener("click", async () => {
+  if (isDirty() && !confirm(t("save.conflict").split("\n")[0])) return;
+  try { await showFolder(await api("POST", "/api/open", { path: $("elrsPath").value })); }
+  catch (e) { setMsg("fileStatus", errMsg(e).key, errMsg(e).vars, "bad"); }
+});
+$("elrsPath").addEventListener("keydown", e => { if (e.key === "Enter") $("btnOpenFolder").click(); });
+
+$("btnInstall").addEventListener("click", async () => {
+  busy = true; updateButtons();
+  try {
+    const j = await api("POST", "/api/install", {});
+    const log = $("log"); log.hidden = false; log.textContent = j.log.join("\n") + "\n";
+    await showFolder(j.info);
+    if (!j.ok) setMsg("fileStatus", "mod.installFailed", { msg: j.log[j.log.length - 1] || "" }, "bad");
+  } catch (e) { setMsg("fileStatus", "mod.installFailed", { msg: e.message }, "bad"); }
+  busy = false; updateButtons();
+});
+
+$("btnDownload").addEventListener("click", () => {
+  const v = $("verSel").value;
+  if (!v) return setMsg("flashStatus", "err.bad_version", null, "bad");
+  try { localStorage.setItem("tankmix-dest", $("verDest").value); } catch (e) {}
+  startJob("/api/download", { version: v, dest: $("verDest").value }, "job.download", { v });
+});
+
+// ---- save ----
+async function doSave() {
+  const v = validate(cfg);
+  if (v.errors.length) return false;
+  if (ALL_FIELDS.some(f => parse(serialize(originalText, cfg)).values[f] !== cfg[f])) { setMsg("fileStatus", "save.internal", null, "bad"); return false; }
+  try {
+    const disk = (await api("GET", "/api/header")).text;
+    if (disk !== originalText && !confirm(t("save.conflict"))) return false;
+    const out = serialize(disk, cfg);
+    const r = await api("POST", "/api/header", { text: out });
+    originalText = out; savedCfg = { ...cfg };
+    updateFwInfo(r.firmware);
+    setMsg("fileStatus", "file.saved", { time: new Date().toLocaleTimeString() }, "ok");
+    refresh();
+    return true;
+  } catch (e) { setMsg("fileStatus", "save.failed", { msg: e.message }, "bad"); return false; }
+}
+$("btnSave").addEventListener("click", doSave);
+$("btnRevert").addEventListener("click", () => { cfg = { ...savedCfg }; loadIntoUI(); refresh(); });
+window.addEventListener("beforeunload", e => { if (isDirty()) { e.preventDefault(); e.returnValue = ""; } });
+
+// ---- jobs (download / build / flash) ----
+function updateFwInfo(fw) {
+  lastFw = fw || null;
+  const el = $("fwInfo");
+  if (!fw || !fw.exists) { el.textContent = info && info.src ? t("fw.none") : ""; return; }
+  el.innerHTML = esc(t("fw.info", { time: new Date(fw.mtime * 1000).toLocaleString(), kb: (fw.size / 1024).toFixed(0) })) +
+    (fw.newer_than_header ? `<span class="ok">${esc(t("fw.fresh"))}</span>` : `<span class="warn">${esc(t("fw.stale"))}</span>`);
+}
+async function pollJob() {
+  if (polling) return; polling = true;
+  const log = $("log"); log.hidden = false;
+  try {
+    for (;;) {
+      const j = await api("GET", "/api/job?since=" + logNext);
+      if (j.lines.length) {
+        const stick = log.scrollTop + log.clientHeight >= log.scrollHeight - 20;
+        log.textContent += j.lines.join("\n") + "\n";
+        if (stick) log.scrollTop = log.scrollHeight;
+      }
+      logNext = j.next;
+      if (j.firmware) updateFwInfo(j.firmware);
+      if (!j.running) {
+        if (j.result === "ok") setMsg("flashStatus", "job." + j.kind + ".ok", null, "ok");
+        else if (j.code === "mismatch") { $("btnForce").hidden = false; setMsg("flashStatus", "code.mismatch", null, "warn"); }
+        else setMsg("flashStatus", STR.en["code." + j.code] ? "code." + j.code : "code.exception", null, "bad");
+        if (j.kind === "download") await showFolder(await api("GET", "/api/info"));
+        break;
+      }
+      await new Promise(r => setTimeout(r, 700));
+    }
+  } catch (e) { setMsg("flashStatus", "job.lost", { msg: e.message }, "bad"); }
+  polling = false; busy = false; updateButtons();
+}
+async function startJob(path, body, labelKey, labelVars) {
+  $("btnForce").hidden = true;
+  $("log").textContent = ""; logNext = 0;
+  busy = true; updateButtons();
+  setMsg("flashStatus", labelKey, labelVars, "");
+  try { await api("POST", path, body); }
+  catch (e) { setMsg("flashStatus", errMsg(e).key, errMsg(e).vars, "bad"); busy = false; updateButtons(); return; }
+  pollJob();
+}
+const phraseVal = () => $("phrase").value.trim();
+$("btnBuild").addEventListener("click", async () => {
+  if (validate(cfg).errors.length) return setMsg("flashStatus", "job.fixfirst", null, "bad");
+  if (isDirty() && !(await doSave())) return;
+  startJob("/api/build", { phrase: phraseVal() }, "job.build");
+  if (!phraseVal()) setMsg("flashStatus", "job.nophrase", null, "warn");
+});
+$("btnFlash").addEventListener("click", () => {
+  if (!lastFw || !lastFw.exists) return setMsg("flashStatus", "job.buildfirst", null, "bad");
+  if (!lastFw.newer_than_header && !confirm(t("job.confirmStale"))) return;
+  startJob("/api/flash", { address: $("radioAddr").value }, "job.flash");
+});
+$("btnForce").addEventListener("click", () => startJob("/api/flash", { address: $("radioAddr").value, confirm: true }, "job.confirm"));
+
+$("phraseShow").addEventListener("change", () => { $("phrase").type = $("phraseShow").checked ? "text" : "password"; });
+function storePhrase() {
+  try { if ($("phraseRemember").checked) localStorage.setItem("tankmix-phrase", $("phrase").value); else localStorage.removeItem("tankmix-phrase"); } catch (e) {}
+}
+$("phraseRemember").addEventListener("change", storePhrase);
+$("phrase").addEventListener("input", storePhrase);
+$("radioAddr").addEventListener("change", () => { try { localStorage.setItem("tankmix-radio", $("radioAddr").value); } catch (e) {} });
+
+// ================================================================ init
+wireInputs();
+setEditorEnabled(false);
+if (!SERVER) {
+  $("noServer").hidden = false;
+  applyLang(); applyTheme();
+} else {
+  $("app").hidden = false;
+  try {
+    const p = localStorage.getItem("tankmix-phrase");
+    if (p !== null) { $("phrase").value = p; $("phraseRemember").checked = true; }
+    const a = localStorage.getItem("tankmix-radio"); if (a) $("radioAddr").value = a;
+    const d = localStorage.getItem("tankmix-dest"); if (d) $("verDest").value = d;
+  } catch (e) {}
+  renderRecent();
+  applyLang(); applyTheme();
+  (async () => {
+    try {
+      const i = await api("GET", "/api/info");
+      $("toolVer").textContent = "v" + i.tool_version + " · RadioMaster T8L";
+      if (!$("verDest").value) $("verDest").value = i.versions_dir;
+      if (!i.src && recentPaths()[0]) $("elrsPath").value = recentPaths()[0];
+      await showFolder(i);
+      if (i.busy) { busy = true; updateButtons(); pollJob(); }
+    } catch (e) { setMsg("fileStatus", "job.lost", { msg: e.message }, "bad"); }
+    runChecks();
+    loadVersions();
+  })();
+}
+</script>
+</body>
+</html>

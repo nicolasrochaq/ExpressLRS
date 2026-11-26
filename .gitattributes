@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+tools/tankmix_config/*.bat text eol=crlf
+tools/tankmix_config/*.sh text eol=lf
+tools/tankmix_config/*.command text eol=lf
