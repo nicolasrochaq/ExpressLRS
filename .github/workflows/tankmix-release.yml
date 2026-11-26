@@ -1,11 +1,22 @@
 name: TankMix release
 
-# Push a tag like v1.0.0 to publish TankMix-v1.0.0.zip as a GitHub release.
-# Release notes come from tools/tankmix_config/release-notes/<tag>.md.
+# Publishes TankMix-v<version>.zip as a GitHub release.
+# - On a push to t8l-tankmix: if TOOL_VERSION in tankmix_config.py has no
+#   release yet, tag that commit v<version> and publish it. Bumping
+#   TOOL_VERSION is all a new release needs.
+# - On a pushed tag v*, or from the Actions tab (Run workflow), it does the same.
+# Release notes come from tools/tankmix_config/release-notes/v<version>.md.
 on:
   push:
+    branches:
+      - t8l-tankmix
     tags:
       - 'v*'
+    paths:
+      - 'tools/tankmix_config/**'
+      - 'src/include/tankmix.h'
+      - '.github/workflows/tankmix-release.yml'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -20,27 +31,41 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Check that the tag matches TOOL_VERSION
+      - name: Read the version
+        id: ver
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           v=$(python3 -c "import re;print(re.search(r'TOOL_VERSION = \"([^\"]+)\"', open('tools/tankmix_config/tankmix_config.py').read()).group(1))")
-          if [ "v$v" != "$GITHUB_REF_NAME" ]; then
+          echo "tag=v$v" >> "$GITHUB_OUTPUT"
+          if [ "$GITHUB_REF_TYPE" = "tag" ] && [ "$GITHUB_REF_NAME" != "v$v" ]; then
             echo "Tag $GITHUB_REF_NAME does not match TOOL_VERSION $v"; exit 1
+          fi
+          if gh release view "v$v" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release v$v already exists, nothing to do."
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Test the app scripts
+        if: steps.ver.outputs.publish == 'true'
         run: |
           python3 -m py_compile tools/tankmix_config/tankmix_config.py tools/tankmix_config/tankmix_patch.py tools/tankmix_config/make_release.py
           python3 tools/tankmix_config/tankmix_patch.py . | tee status.txt
           grep -q "Tank mix is installed" status.txt
 
       - name: Build the zip
+        if: steps.ver.outputs.publish == 'true'
         run: python3 tools/tankmix_config/make_release.py dist
 
       - name: Publish the release
+        if: steps.ver.outputs.publish == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.ver.outputs.tag }}
         run: |
-          notes=tools/tankmix_config/release-notes/$GITHUB_REF_NAME.md
-          [ -f "$notes" ] || { echo "TankMix $GITHUB_REF_NAME" > "$notes"; }
-          gh release create "$GITHUB_REF_NAME" "dist/TankMix-$GITHUB_REF_NAME.zip" \
-            --title "TankMix $GITHUB_REF_NAME" --notes-file "$notes" --latest
+          notes=tools/tankmix_config/release-notes/$TAG.md
+          [ -f "$notes" ] || echo "TankMix $TAG" > "$notes"
+          gh release create "$TAG" "dist/TankMix-$TAG.zip" --target "$GITHUB_SHA" \
+            --title "TankMix $TAG" --notes-file "$notes" --latest
